@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auanggoon Game Review</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin:0; padding:0; display:flex; background:#f4f4f4; min-height:100vh; flex-direction: row; }
+        .sidebar { width:220px; background:#1e293b; color:white; padding:20px; box-sizing:border-box; }
+        .sidebar h2 { font-size:1.5rem; margin:0 0 20px; text-align:center; color:#38bdf8; }
+        .sidebar a { display:block; color:white; text-decoration:none; padding:10px 0; border-bottom:1px solid #334155; }
+        .sidebar a:hover { background:#334155; border-radius:5px; }
+        .main { flex:1; padding:20px; overflow-y:auto; }
+        h1 { text-align:center; margin-top:0; color:#007bff; font-size:1.8rem; }
+        form { text-align:center; margin-bottom:20px; }
+        input[type="text"] { padding:8px; width:80%; max-width:300px; border:1px solid #ccc; border-radius:5px; }
+        button { padding:8px 15px; border:none; background:#007BFF; color:white; border-radius:5px; cursor:pointer; }
+        .game-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:20px; }
+        .game { background:white; padding:15px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); text-align:center; cursor:pointer; transition: transform 0.2s; }
+        .game:hover { transform:scale(1.03); }
+        .game img { width:100%; border-radius:8px; height:auto; }
+        .game-detail { max-width:800px; margin:auto; background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+        .game-detail img { width:100%; border-radius:8px; }
+        .back-link { display:block; margin-bottom:15px; }
+        .contact-img { max-width:400px; margin:auto; display:block; border-radius:8px; width:90%; height:auto; }
+
+        /* Responsive สำหรับมือถือ */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width:100%; text-align:center; }
+            .main { padding:10px; }
+            .game-list { grid-template-columns: 1fr; }
+            input[type="text"] { width:90%; }
+            h1 { font-size:1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="/">หน้าแรก</a>
+        <a href="/?contact=1">ติดต่อ</a>
+        <a href="https://www.online-station.net">ข่าว</a>
+    </div>
+
+    <div class="main">
+        <h1>Auanggoon Game Review 🎮</h1>
+
+        {% if show_contact %}
+            <h2 style="text-align:center;">ติดต่อเรา</h2>
+            <img src="{{ url_for('static', filename=contact_images[0]) }}" class="contact-img">
+            <p style="text-align:center;">อีเมล: auangkool2002@gmail.com | โทร: 095-210-xxxx</p>
+
+        {% elif selected_game %}
+            <div class="game-detail">
+                <a href="/" class="back-link">← กลับหน้าแรก</a>
+                <h2>{{ selected_game.name or "Unknown Game" }}</h2>
+                {% if selected_game.background_image %}
+                    <img src="{{ selected_game.background_image }}" alt="{{ selected_game.name }}">
+                {% endif %}
+                <p>⭐ Rating: {{ selected_game.rating or "N/A" }}</p>
+                <p>Released: {{ selected_game.released or "N/A" }}</p>
+                <p>
+                    Platforms:
+                    {% if selected_game.platforms %}
+                        {% for p in selected_game.platforms %}
+                            {{ p.platform.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}N/A{% endif %}
+                </p>
+                <p>
+                    Genres:
+                    {% if selected_game.genres %}
+                        {% for g in selected_game.genres %}
+                            {{ g.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}N/A{% endif %}
+                </p>
+                <p>{{ selected_game.description_raw or "No description available." }}</p>
+            </div>
+
+        {% else %}
+            <form method="POST">
+                <input type="text" name="search" placeholder="ค้นหาเกม..." value="{{ query }}">
+                <button type="submit">Search</button>
+            </form>
+            <div class="game-list">
+                {% for game in games %}
+                    <div class="game" onclick="location.href='/?game_id={{ game.id }}'">
+                        <h3>{{ game.name or 'No name' }}</h3>
+                        {% if game.background_image %}
+                            <img src="{{ game.background_image }}" alt="{{ game.name }}">
+                        {% endif %}
+                        <p>⭐ Rating: {{ game.rating or 'N/A' }}</p>
+                        <p>Released: {{ game.released or 'N/A' }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
